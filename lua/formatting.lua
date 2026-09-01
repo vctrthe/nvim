@@ -4,9 +4,11 @@ local M = {}
 M.formatters = {
   lua = "stylua -",
   javascript = "prettier --stdin-filepath %",
-  javascript = "prettier --stdin-filepath %",
-  typescriptreact = "prettier --stdin-filepath %s",
-  json = "prettier --stdin-filepath %s",
+  typescript = "prettier --stdin-filepath %",
+  typescriptreact = "prettier --stdin-filepath %",
+  json = "prettier --stdin-filepath %",
+  go = "gofmt",
+  cs = "csharpier --stdin-filepath %",
 }
 
 vim.api.nvim_create_autocmd("BufWritePre", {
@@ -32,6 +34,8 @@ vim.api.nvim_create_autocmd("BufWritePre", {
           table.remove(formatted)
         end
         vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, formatted)
+      else
+        vim.notify("formatting: `" .. resolved .. "` failed:\n" .. output, vim.log.levels.WARN)
       end
     else
       -- No external formatter: try LSP

@@ -1,4 +1,5 @@
 vim.opt.grepprg = "rg --vimgrep --smart-case --hidden"
+  .. " --glob '!.git' --glob '!node_modules' --glob '!dist' --glob '!build'"
 vim.opt.grepformat = "%f:%l:%c:%m"
 
 vim.keymap.set("n", "<leader>g", function()

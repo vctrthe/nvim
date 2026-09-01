@@ -8,7 +8,10 @@ local ignore_patterns = {
   "%.log",
 }
 
-function _G.native_find(text, _)
+local file_cache = nil
+local cache_cwd = nil
+
+local function scan_files()
   local files = vim.fn.glob("**/*", true, true)
   local result = {}
   for _, f in ipairs(files) do
@@ -25,8 +28,24 @@ function _G.native_find(text, _)
       end
     end
   end
-  return vim.fn.matchfuzzy(result, text)
+  return result
 end
+
+function _G.native_find(text, _)
+  local cwd = vim.fn.getcwd()
+  if not file_cache or cache_cwd ~= cwd then
+    file_cache = scan_files()
+    cache_cwd = cwd
+  end
+  return vim.fn.matchfuzzy(file_cache, text)
+end
+
+-- Invalidate cache when files change on disk or cwd changes
+vim.api.nvim_create_autocmd({ "DirChanged", "FocusGained", "BufWritePost" }, {
+  callback = function()
+    file_cache = nil
+  end,
+})
 
 vim.opt.findfunc = "v:lua.native_find"
 
